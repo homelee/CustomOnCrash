@@ -24,6 +24,8 @@ import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import uuxia.com.library.ui.DefaultErrorActivity;
+
 /**
  * Created by Android Studio.
  * Author: uuxia

@@ -2,6 +2,8 @@ package uuxia.com.sample;
 
 import android.app.Application;
 
+import uuxia.com.library.CustomOnCrashCore;
+
 /**
  * Created by Android Studio.
  * Author: uuxia

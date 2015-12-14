@@ -11,7 +11,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.main_layout);
 
         Button crashMainThreadButton = (Button) findViewById(R.id.button_crash_main_thread);
         Button crashBgThreadButton = (Button) findViewById(R.id.button_crash_bg_thread);

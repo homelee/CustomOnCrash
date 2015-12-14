@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2015 Eduard Ereza Martínez
   ~
@@ -16,7 +15,11 @@
   -->
 
 <resources>
-    <color name="primary">#CC0000</color>
-    <color name="primary_dark">#880000</color>
-    <color name="accent">#808000</color>
+
+    <style name="SampleAppTheme" parent="android:Theme.Holo.Light.DarkActionBar" />
+
+    <!-- We make CustomActivityOnCrashTheme inherit from SampleAppTheme, so it uses our own theme instead -->
+    <!-- This only applies when using the default error activity, of course! -->
+    <style name="CustomActivityOnCrashTheme" parent="SampleAppTheme" />
+
 </resources>

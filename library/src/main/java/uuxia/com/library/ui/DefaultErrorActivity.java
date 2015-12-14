@@ -32,8 +32,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import cat.ereza.customactivityoncrash.CustomOnCrashCore;
-import cat.ereza.customactivityoncrash.R;
+import uuxia.com.library.CustomOnCrashCore;
+import uuxia.com.library.R;
+
 
 public final class DefaultErrorActivity extends Activity {
 

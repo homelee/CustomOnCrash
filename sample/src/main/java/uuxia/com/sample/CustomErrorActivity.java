@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import uuxia.com.library.CustomOnCrashCore;
+
 /**
  * Created by Android Studio.
  * Author: uuxia

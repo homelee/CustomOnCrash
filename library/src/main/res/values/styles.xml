@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright 2015 Eduard Ereza Martínez
   ~
@@ -15,8 +14,8 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <color name="primary">#CC0000</color>
-    <color name="primary_dark">#880000</color>
-    <color name="accent">#808000</color>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="CustomActivityOnCrashTheme" parent="android:Theme.Light" tools:ignore="ResourceName" />
+
 </resources>
