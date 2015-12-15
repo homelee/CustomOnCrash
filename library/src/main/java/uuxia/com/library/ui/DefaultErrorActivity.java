@@ -48,7 +48,7 @@ public final class DefaultErrorActivity extends Activity {
         //If a class if set, use restart.
         //Else, use close and just finish the app.
         //It is recommended that you follow this logic if implementing a custom error activity.
-        Button restartButton = (Button) findViewById(R.id.customactivityoncrash_error_activity_restart_button);
+        /*Button restartButton = (Button) findViewById(R.id.customactivityoncrash_error_activity_restart_button);
 
         final Class<? extends Activity> restartActivityClass = CustomOnCrashCore.getRestartActivityClassFromIntent(getIntent());
 
@@ -107,7 +107,7 @@ public final class DefaultErrorActivity extends Activity {
         } else {
             //noinspection deprecation
             errorImageView.setImageDrawable(getResources().getDrawable(defaultErrorActivityDrawableId));
-        }
+        }*/
 
         initUuxiaView();
     }
@@ -115,26 +115,34 @@ public final class DefaultErrorActivity extends Activity {
 
 
     private void initUuxiaView(){
-        TextView err = (TextView) this.findViewById(android.R.id.message);//(TextView) findViewById(R.id.error);
-        if (err != null) {
-            String msg = CustomOnCrashCore.getAllErrorDetailsFromIntent(DefaultErrorActivity.this, getIntent());
-            Log.i("initUuxiaView","aaa="+msg);
-            err.setText(msg);
+        TextView errorDetailsText = (TextView) findViewById(R.id.error_details);
+        String allerr = CustomOnCrashCore.getAllErrorDetailsFromIntent(DefaultErrorActivity.this, getIntent());
+        String traceerr = CustomOnCrashCore.getStackTraceFromIntent(getIntent());
+        errorDetailsText.setText(allerr);
+
+        Button restartButton = (Button) findViewById(R.id.restart_button);
+
+        final Class<? extends Activity> restartActivityClass = CustomOnCrashCore.getRestartActivityClassFromIntent(getIntent());
+
+        if (restartActivityClass != null) {
+            restartButton.setText(R.string.restart_app);
+            restartButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(DefaultErrorActivity.this, restartActivityClass);
+                    CustomOnCrashCore.restartApplicationWithIntent(DefaultErrorActivity.this, intent);
+                }
+            });
+        } else {
+            restartButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    CustomOnCrashCore.closeApplication(DefaultErrorActivity.this);
+                }
+            });
         }
     }
 
-    public void onCopy(View view){
-
-        finish();
-    }
-    public void onServer(View view){
-
-        finish();
-    }
-    public void onOk(View view){
-        copyErrorToClipboard();
-        finish();
-    }
 
     private void copyErrorToClipboard() {
         String errorInformation =

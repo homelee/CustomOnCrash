@@ -53,7 +53,7 @@ public class CrashApplication extends Application {
         //If none are set, the default launch activity will be used.
         //Comment it (and disable the intent filter) to see the customization effects on the default error activity.
         //Uncomment to use the custom error activity
-        CustomOnCrashCore.setErrorActivityClass(CustomErrorActivity.class);
+//        CustomOnCrashCore.setErrorActivityClass(CustomErrorActivity.class);
 
         //This enables CustomOnCrashCore
         CustomOnCrashCore.install(this);
