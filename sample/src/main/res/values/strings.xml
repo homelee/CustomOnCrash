@@ -29,8 +29,8 @@
     <string name="error_occurred">An error occurred. We\'re deeply sorry.</string>
     <string name="error_details">Error details:</string>
     <string name="unknown_exception">Unknown exception</string>
-    <string name="restart_app">Restart app</string>
-    <string name="close_app">Close app</string>
+    <string name="restart_app">Restart</string>
+    <string name="close_app">Close</string>
 
     <!-- We define some custom strings for the default error activity -->
     <!-- This only applies when using the default error activity, of course! -->

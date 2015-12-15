@@ -16,6 +16,8 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,15 +33,6 @@ import uuxia.com.library.ui.DefaultErrorActivity;
  * Author: uuxia
  * Date: 2015-12-14 17:18
  * Description:
- */
-/*
- * -----------------------------------------------------------------
- * Copyright ?2014 clife - 和而泰家居在线网络科技有限公司
- * Shenzhen H&T Intelligent Control Co.,Ltd.
- * -----------------------------------------------------------------
- *
- * File: CustomOnCrashCore.java
- * Create: 2015/12/14 17:18
  */
 public final class CustomOnCrashCore {
 
@@ -261,12 +254,16 @@ public final class CustomOnCrashCore {
         //Get app version
         String versionName = getVersionName(context);
 
+        String packageName = context.getPackageName();
+
         String errorDetails = "";
 
         errorDetails += "Build version: " + versionName + " \n";
         errorDetails += "Build date: " + buildDateAsString + " \n";
         errorDetails += "Current date: " + dateFormat.format(currentDate) + " \n";
-        errorDetails += "Device: " + getDeviceModelName() + " \n\n";
+        errorDetails += "package Name: " + packageName + " \n";
+        errorDetails += "Device: " + getDeviceModelName() + " \n";
+        errorDetails += "System Version: " + android.os.Build.VERSION.RELEASE + " \n\n";
         errorDetails += "Stack trace:  \n";
         errorDetails += getStackTraceFromIntent(intent);
         return errorDetails;
@@ -331,8 +328,8 @@ public final class CustomOnCrashCore {
      * Defines if the error activity must be launched when the app is on background.
      * Set it to true if you want to launch the error activity when the app is in background,
      * false if you want it not to launch and crash silently.
-     * This has no effect in API<14 and the error activity is always launched.
      * The default is true (the app will be brought to front when a crash occurs).
+     * @param launchErrorActivityWhenInBackground The default is true (the app will be brought to front when a crash occurs).
      */
     public static void setLaunchErrorActivityWhenInBackground(boolean launchErrorActivityWhenInBackground) {
         CustomOnCrashCore.launchErrorActivityWhenInBackground = launchErrorActivityWhenInBackground;
@@ -352,6 +349,7 @@ public final class CustomOnCrashCore {
      * Set it to true if you want to show the full stack trace and device info,
      * false if you want it to be hidden.
      * The default is true.
+     * @param showErrorDetails The default is true.
      */
     public static void setShowErrorDetails(boolean showErrorDetails) {
         CustomOnCrashCore.showErrorDetails = showErrorDetails;
@@ -370,6 +368,7 @@ public final class CustomOnCrashCore {
      * Defines which drawable to use in the default error activity image.
      * Set this if you want to use an image other than the default one.
      * The default is R.drawable.customactivityoncrash_error_image (a cute upside-down bug).
+     * @param defaultErrorActivityDrawableId The default is R.drawable.customactivityoncrash_error_image (a cute upside-down bug).
      */
     public static void setDefaultErrorActivityDrawable(int defaultErrorActivityDrawableId) {
         CustomOnCrashCore.defaultErrorActivityDrawableId = defaultErrorActivityDrawableId;
@@ -393,6 +392,7 @@ public final class CustomOnCrashCore {
      * Note that even if restart is enabled, a valid restart activity could not be found.
      * In that case, a close button will still be used.
      * The default is true.
+     * @param enableAppRestart The default is true.
      */
     public static void setEnableAppRestart(boolean enableAppRestart) {
         CustomOnCrashCore.enableAppRestart = enableAppRestart;
@@ -410,6 +410,7 @@ public final class CustomOnCrashCore {
     /**
      * Sets the error activity class to launch when a crash occurs.
      * If null,the default error activity will be used.
+     * @param errorActivityClass  If null,the default error activity will be used.
      */
     public static void setErrorActivityClass(Class<? extends Activity> errorActivityClass) {
         CustomOnCrashCore.errorActivityClass = errorActivityClass;
@@ -427,6 +428,7 @@ public final class CustomOnCrashCore {
     /**
      * Sets the main activity class that the error activity must launch when a crash occurs.
      * If not set or set to null, the default error activity will close instead.
+     * @param restartActivityClass The class,or null if not set.
      */
     public static void setRestartActivityClass(Class<? extends Activity> restartActivityClass) {
         CustomOnCrashCore.restartActivityClass = restartActivityClass;
@@ -653,5 +655,49 @@ public final class CustomOnCrashCore {
     private static void killCurrentProcess() {
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(10);
+    }
+
+
+    private Object mEmail = null;
+    private void sendEmail(final String title,final String error,final String filepath) {
+        if (mEmail == null) {
+            return;
+        }
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                Class clazz = mEmail.getClass();
+                try {
+                    Method subJect = clazz.getDeclaredMethod(MethondName.setSubject, String.class);
+                    Method conTent = clazz.getDeclaredMethod(MethondName.setContent, String.class);
+                    Method attachFile = clazz.getDeclaredMethod(MethondName.setAttachFile, String.class);
+                    Method sendtextMail = clazz.getDeclaredMethod(MethondName.sendTextMail);
+                    subJect.invoke(mEmail, title);
+                    conTent.invoke(mEmail, error);
+                    attachFile.invoke(mEmail, filepath);
+                    sendtextMail.invoke(mEmail);
+                } catch (NoSuchMethodException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IllegalArgumentException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    static class MethondName{
+        public static String setSubject = "setSubject";
+        public static String setContent = "setContent";
+        public static String setAttachFile = "setAttachFile";
+        public static String sendTextMail = "sendTextMail";
     }
 }

@@ -17,26 +17,25 @@
 package uuxia.com.library.ui;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import uuxia.com.library.CustomOnCrashCore;
 import uuxia.com.library.R;
 
 
-public final class DefaultErrorActivity extends Activity {
+public final class DefaultErrorActivity extends Activity implements PopupMenu.OnMenuItemClickListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,70 +47,36 @@ public final class DefaultErrorActivity extends Activity {
         //If a class if set, use restart.
         //Else, use close and just finish the app.
         //It is recommended that you follow this logic if implementing a custom error activity.
-        /*Button restartButton = (Button) findViewById(R.id.customactivityoncrash_error_activity_restart_button);
-
-        final Class<? extends Activity> restartActivityClass = CustomOnCrashCore.getRestartActivityClassFromIntent(getIntent());
-
-        if (restartActivityClass != null) {
-            restartButton.setText(R.string.customactivityoncrash_error_activity_restart_app);
-            restartButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(DefaultErrorActivity.this, restartActivityClass);
-                    CustomOnCrashCore.restartApplicationWithIntent(DefaultErrorActivity.this, intent);
-                }
-            });
-        } else {
-            restartButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    CustomOnCrashCore.closeApplication(DefaultErrorActivity.this);
-                }
-            });
-        }
-
-        Button moreInfoButton = (Button) findViewById(R.id.customactivityoncrash_error_activity_more_info_button);
-
-        if (CustomOnCrashCore.isShowErrorDetailsFromIntent(getIntent())) {
-
-            moreInfoButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //We retrieve all the error data and show it
-
-                    AlertDialog dialog = new AlertDialog.Builder(DefaultErrorActivity.this)
-                            .setTitle(R.string.customactivityoncrash_error_activity_error_details_title)
-                            .setMessage(CustomOnCrashCore.getAllErrorDetailsFromIntent(DefaultErrorActivity.this, getIntent()))
-                            .setPositiveButton(R.string.customactivityoncrash_error_activity_error_details_close, null)
-                            .setNeutralButton(R.string.customactivityoncrash_error_activity_error_details_copy,
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            copyErrorToClipboard();
-                                            Toast.makeText(DefaultErrorActivity.this, R.string.customactivityoncrash_error_activity_error_details_copied, Toast.LENGTH_SHORT).show();
-                                        }
-                                    })
-                            .show();
-                    TextView textView = (TextView) dialog.findViewById(android.R.id.message);
-                    textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.customactivityoncrash_error_activity_error_details_text_size));
-                }
-            });
-        } else {
-            moreInfoButton.setVisibility(View.GONE);
-        }
-
-        int defaultErrorActivityDrawableId = CustomOnCrashCore.getDefaultErrorActivityDrawableIdFromIntent(getIntent());
-        ImageView errorImageView = ((ImageView) findViewById(R.id.customactivityoncrash_error_activity_image));
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            errorImageView.setImageDrawable(getResources().getDrawable(defaultErrorActivityDrawableId, getTheme()));
-        } else {
-            //noinspection deprecation
-            errorImageView.setImageDrawable(getResources().getDrawable(defaultErrorActivityDrawableId));
-        }*/
-
         initUuxiaView();
     }
 
+    public void showpop(View v) {
+        PopupMenu popup = new PopupMenu(this, v);
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(R.menu.menu_main, popup.getMenu());
+        popup.setOnMenuItemClickListener(this);
+        popup.show();
+
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.copy) {
+            copyErrorToClipboard();
+            return true;
+        } else if (id == R.id.email){
+            return true;
+        }else if (id == R.id.restart){
+            final Class<? extends Activity> restartActivityClass = CustomOnCrashCore.getRestartActivityClassFromIntent(getIntent());
+            if (restartActivityClass != null) {
+                Intent intent = new Intent(DefaultErrorActivity.this, restartActivityClass);
+                CustomOnCrashCore.restartApplicationWithIntent(DefaultErrorActivity.this, intent);
+            }
+            return true;
+        }
+        return false;
+    }
 
 
     private void initUuxiaView(){
@@ -125,12 +90,10 @@ public final class DefaultErrorActivity extends Activity {
         final Class<? extends Activity> restartActivityClass = CustomOnCrashCore.getRestartActivityClassFromIntent(getIntent());
 
         if (restartActivityClass != null) {
-            restartButton.setText(R.string.restart_app);
             restartButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(DefaultErrorActivity.this, restartActivityClass);
-                    CustomOnCrashCore.restartApplicationWithIntent(DefaultErrorActivity.this, intent);
+                    CustomOnCrashCore.closeApplication(DefaultErrorActivity.this);
                 }
             });
         } else {
@@ -141,13 +104,22 @@ public final class DefaultErrorActivity extends Activity {
                 }
             });
         }
+
+        TextView more = (TextView) findViewById(R.id.more);
+        more.getPaint().setFlags(Paint. UNDERLINE_TEXT_FLAG ); //下划线
+        more.getPaint().setAntiAlias(true);//抗锯齿
+        more.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showpop(v);
+            }
+        });
     }
 
 
     private void copyErrorToClipboard() {
         String errorInformation =
                 CustomOnCrashCore.getAllErrorDetailsFromIntent(DefaultErrorActivity.this, getIntent());
-        Log.i("initUuxiaView","bbb="+errorInformation);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
             ClipData clip = ClipData.newPlainText(getString(R.string.customactivityoncrash_error_activity_error_details_clipboard_label), errorInformation);
