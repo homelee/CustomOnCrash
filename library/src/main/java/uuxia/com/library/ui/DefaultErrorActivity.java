@@ -16,25 +16,36 @@
 
 package uuxia.com.library.ui;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import uuxia.com.library.CustomOnCrashCore;
 import uuxia.com.library.R;
+import uuxia.com.library.mail.Email;
 
 
+/**
+ * The type Default error activity.
+ */
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public final class DefaultErrorActivity extends Activity implements PopupMenu.OnMenuItemClickListener{
 
     @Override
@@ -50,6 +61,11 @@ public final class DefaultErrorActivity extends Activity implements PopupMenu.On
         initUuxiaView();
     }
 
+    /**
+     * Showpop.
+     *
+     * @param v the v
+     */
     public void showpop(View v) {
         PopupMenu popup = new PopupMenu(this, v);
         MenuInflater inflater = popup.getMenuInflater();
@@ -66,6 +82,7 @@ public final class DefaultErrorActivity extends Activity implements PopupMenu.On
             copyErrorToClipboard();
             return true;
         } else if (id == R.id.email){
+            popEmail();
             return true;
         }else if (id == R.id.restart){
             final Class<? extends Activity> restartActivityClass = CustomOnCrashCore.getRestartActivityClassFromIntent(getIntent());
@@ -129,5 +146,42 @@ public final class DefaultErrorActivity extends Activity implements PopupMenu.On
             android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
             clipboard.setText(errorInformation);
         }
+    }
+
+    private void popEmail(){
+        LayoutInflater inflater = getLayoutInflater();
+        View layout = inflater.inflate(R.layout.fillmail, null);
+
+        final EditText from = (EditText) layout.findViewById(R.id.from);
+        final EditText pass = (EditText) layout.findViewById(R.id.pass);
+        final EditText to = (EditText) layout.findViewById(R.id.to);
+
+        AlertDialog.Builder dlg = new AlertDialog.Builder(this);
+        dlg.setTitle("please input information");
+        dlg.setView(layout);
+        dlg.setPositiveButton("send", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String fromAddr = from.getText().toString();
+                String password = pass.getText().toString();
+                String toAddr = to.getText().toString();
+                if (TextUtils.isEmpty(fromAddr) || TextUtils.isEmpty(password) || TextUtils.isEmpty(toAddr)) {
+                    Toast.makeText(DefaultErrorActivity.this, "please input information", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Email mail = Email.create(toAddr, fromAddr, password);
+
+                String errorInformation = CustomOnCrashCore.getAllErrorDetailsFromIntent(DefaultErrorActivity.this, getIntent());
+                CustomOnCrashCore.sendMail(DefaultErrorActivity.this,errorInformation,true,mail);
+            }
+        });
+        dlg.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        dlg.show();
     }
 }

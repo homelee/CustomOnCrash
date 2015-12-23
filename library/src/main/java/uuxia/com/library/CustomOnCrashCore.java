@@ -27,12 +27,10 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import uuxia.com.library.ui.DefaultErrorActivity;
+import uuxia.com.library.utils.Logc;
 
 /**
- * Created by Android Studio.
- * Author: uuxia
- * Date: 2015-12-14 17:18
- * Description:
+ * The type Custom on crash core.
  */
 public final class CustomOnCrashCore {
 
@@ -63,16 +61,22 @@ public final class CustomOnCrashCore {
     private static Class<? extends Activity> errorActivityClass = null;
     private static Class<? extends Activity> restartActivityClass = null;
 
+    //mail instance
+    private static Object mEmail = null;
+    private static boolean bAutoSendMail = false;
+    private static boolean bWriteFile = true;
+
     /**
-     * Installs CustomOnCrashCore on the application using the default error activity.
+     * Install.
      *
-     * @param context Context to use for obtaining the ApplicationContext. Must not be null.
+     * @param context the context
      */
-    public static void install(Context context) {
+    public static void install(final Context context) {
         try {
             if (context == null) {
                 Log.e(TAG, "Install failed: context is null!");
             } else {
+                Logc.Init(context);
                 if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
                     Log.w(TAG, "CustomOnCrashCore will be installed, but may not be reliable in API lower than 14");
                 }
@@ -126,6 +130,11 @@ public final class CustomOnCrashCore {
                                         //In case someone sets the activity and then decides to not restart
                                         restartActivityClass = null;
                                     }
+
+                                    if (bWriteFile) {
+                                        Logc.i(stackTraceString, true);
+                                    }
+                                    sendMail(context,stackTraceString,false,mEmail);
 
                                     intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
                                     intent.putExtra(EXTRA_RESTART_ACTIVITY_CLASS, restartActivityClass);
@@ -206,41 +215,41 @@ public final class CustomOnCrashCore {
     }
 
     /**
-     * Given an Intent, returns if the error details button should be displayed.
+     * Is show error details from intent boolean.
      *
-     * @param intent The Intent. Must not be null.
-     * @return true if the button must be shown, false otherwise.
+     * @param intent the intent
+     * @return the boolean
      */
     public static boolean isShowErrorDetailsFromIntent(Intent intent) {
         return intent.getBooleanExtra(CustomOnCrashCore.EXTRA_SHOW_ERROR_DETAILS, true);
     }
 
     /**
-     * Given an Intent, returns the drawable id of the image to show on the default error activity.
+     * Gets default error activity drawable id from intent.
      *
-     * @param intent The Intent. Must not be null.
-     * @return The id of the drawable to use.
+     * @param intent the intent
+     * @return the default error activity drawable id from intent
      */
     public static int getDefaultErrorActivityDrawableIdFromIntent(Intent intent) {
         return intent.getIntExtra(CustomOnCrashCore.EXTRA_IMAGE_DRAWABLE_ID, R.mipmap.ic_launcher);
     }
 
     /**
-     * Given an Intent, returns the stack trace extra from it.
+     * Gets stack trace from intent.
      *
-     * @param intent The Intent. Must not be null.
-     * @return The stacktrace, or null if not provided.
+     * @param intent the intent
+     * @return the stack trace from intent
      */
     public static String getStackTraceFromIntent(Intent intent) {
         return intent.getStringExtra(CustomOnCrashCore.EXTRA_STACK_TRACE);
     }
 
     /**
-     * Given an Intent, returns several error details including the stack trace extra from the intent.
+     * Gets all error details from intent.
      *
-     * @param context A valid context. Must not be null.
-     * @param intent  The Intent. Must not be null.
-     * @return The full error details.
+     * @param context the context
+     * @param intent  the intent
+     * @return the all error details from intent
      */
     public static String getAllErrorDetailsFromIntent(Context context, Intent intent) {
         //I don't think that this needs localization because it's a development string...
@@ -270,10 +279,10 @@ public final class CustomOnCrashCore {
     }
 
     /**
-     * Given an Intent, returns the restart activity class extra from it.
+     * Gets restart activity class from intent.
      *
-     * @param intent The Intent. Must not be null.
-     * @return The restart activity class, or null if not provided.
+     * @param intent the intent
+     * @return the restart activity class from intent
      */
     @SuppressWarnings("unchecked")
     public static Class<? extends Activity> getRestartActivityClassFromIntent(Intent intent) {
@@ -287,13 +296,10 @@ public final class CustomOnCrashCore {
     }
 
     /**
-     * Given an Intent, restarts the app and launches a startActivity to that intent.
-     * The flags NEW_TASK and CLEAR_TASK are set if the Intent does not have them, to ensure
-     * the app stack is fully cleared.
-     * Must only be used from your error activity.
+     * Restart application with intent.
      *
-     * @param activity The current error activity. Must not be null.
-     * @param intent   The Intent. Must not be null.
+     * @param activity the activity
+     * @param intent   the intent
      */
     public static void restartApplicationWithIntent(Activity activity, Intent intent) {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -303,9 +309,9 @@ public final class CustomOnCrashCore {
     }
 
     /**
-     * Closes the app. Must only be used from your error activity.
+     * Close application.
      *
-     * @param activity The current error activity. Must not be null.
+     * @param activity the activity
      */
     public static void closeApplication(Activity activity) {
         activity.finish();
@@ -316,119 +322,108 @@ public final class CustomOnCrashCore {
     /// SETTERS AND GETTERS FOR THE CUSTOMIZABLE PROPERTIES
 
     /**
-     * Returns if the error activity must be launched when the app is on background.
+     * Is launch error activity when in background boolean.
      *
-     * @return true if it will be launched, false otherwise.
+     * @return the boolean
      */
     public static boolean isLaunchErrorActivityWhenInBackground() {
         return launchErrorActivityWhenInBackground;
     }
 
     /**
-     * Defines if the error activity must be launched when the app is on background.
-     * Set it to true if you want to launch the error activity when the app is in background,
-     * false if you want it not to launch and crash silently.
-     * The default is true (the app will be brought to front when a crash occurs).
-     * @param launchErrorActivityWhenInBackground The default is true (the app will be brought to front when a crash occurs).
+     * Sets launch error activity when in background.
+     *
+     * @param launchErrorActivityWhenInBackground the launch error activity when in background
      */
     public static void setLaunchErrorActivityWhenInBackground(boolean launchErrorActivityWhenInBackground) {
         CustomOnCrashCore.launchErrorActivityWhenInBackground = launchErrorActivityWhenInBackground;
     }
 
     /**
-     * Returns if the error activity will show the error details button.
+     * Is show error details boolean.
      *
-     * @return true if it will be shown, false otherwise.
+     * @return the boolean
      */
     public static boolean isShowErrorDetails() {
         return showErrorDetails;
     }
 
     /**
-     * Defines if the error activity must shown the error details button.
-     * Set it to true if you want to show the full stack trace and device info,
-     * false if you want it to be hidden.
-     * The default is true.
-     * @param showErrorDetails The default is true.
+     * Sets show error details.
+     *
+     * @param showErrorDetails the show error details
      */
     public static void setShowErrorDetails(boolean showErrorDetails) {
         CustomOnCrashCore.showErrorDetails = showErrorDetails;
     }
 
     /**
-     * Returns the default error activity drawable identifier.
+     * Gets default error activity drawable.
      *
-     * @return the default error activity drawable identifier
+     * @return the default error activity drawable
      */
     public static int getDefaultErrorActivityDrawable() {
         return defaultErrorActivityDrawableId;
     }
 
     /**
-     * Defines which drawable to use in the default error activity image.
-     * Set this if you want to use an image other than the default one.
-     * The default is R.drawable.customactivityoncrash_error_image (a cute upside-down bug).
-     * @param defaultErrorActivityDrawableId The default is R.drawable.customactivityoncrash_error_image (a cute upside-down bug).
+     * Sets default error activity drawable.
+     *
+     * @param defaultErrorActivityDrawableId the default error activity drawable id
      */
     public static void setDefaultErrorActivityDrawable(int defaultErrorActivityDrawableId) {
         CustomOnCrashCore.defaultErrorActivityDrawableId = defaultErrorActivityDrawableId;
     }
 
     /**
-     * Returns if the error activity should show a restart button.
-     * Note that even if restart is enabled, a valid restart activity could not be found.
-     * In that case, a close button will still be used.
+     * Is enable app restart boolean.
      *
-     * @return true if a restart button should be shown, false if a close button must be used.
+     * @return the boolean
      */
     public static boolean isEnableAppRestart() {
         return enableAppRestart;
     }
 
     /**
-     * Defines if the error activity should show a restart button.
-     * Set it to true if you want to show a restart button,
-     * false if you want to show a close button.
-     * Note that even if restart is enabled, a valid restart activity could not be found.
-     * In that case, a close button will still be used.
-     * The default is true.
-     * @param enableAppRestart The default is true.
+     * Sets enable app restart.
+     *
+     * @param enableAppRestart the enable app restart
      */
     public static void setEnableAppRestart(boolean enableAppRestart) {
         CustomOnCrashCore.enableAppRestart = enableAppRestart;
     }
 
     /**
-     * Returns the error activity class to launch when a crash occurs.
+     * Gets error activity class.
      *
-     * @return The class, or null if not set.
+     * @return the error activity class
      */
     public static Class<? extends Activity> getErrorActivityClass() {
         return errorActivityClass;
     }
 
     /**
-     * Sets the error activity class to launch when a crash occurs.
-     * If null,the default error activity will be used.
-     * @param errorActivityClass  If null,the default error activity will be used.
+     * Sets error activity class.
+     *
+     * @param errorActivityClass the error activity class
      */
     public static void setErrorActivityClass(Class<? extends Activity> errorActivityClass) {
         CustomOnCrashCore.errorActivityClass = errorActivityClass;
     }
 
     /**
-     * Returns the main activity class that the error activity must launch when a crash occurs.
+     * Gets restart activity class.
      *
-     * @return The class, or null if not set.
+     * @return the restart activity class
      */
     public static Class<? extends Activity> getRestartActivityClass() {
         return restartActivityClass;
     }
 
     /**
-     * Sets the main activity class that the error activity must launch when a crash occurs.
-     * If not set or set to null, the default error activity will close instead.
-     * @param restartActivityClass The class,or null if not set.
+     * Sets restart activity class.
+     *
+     * @param restartActivityClass the restart activity class
      */
     public static void setRestartActivityClass(Class<? extends Activity> restartActivityClass) {
         CustomOnCrashCore.restartActivityClass = restartActivityClass;
@@ -437,15 +432,6 @@ public final class CustomOnCrashCore {
 
     /// INTERNAL METHODS NOT TO BE USED BY THIRD PARTIES
 
-    /**
-     * INTERNAL method that checks if the stack trace that just crashed is conflictive. This is true in the following scenarios:
-     * - The application has crashed while initializing (handleBindApplication is in the stack)
-     * - The error activity has crashed (activityClass is in the stack)
-     *
-     * @param throwable     The throwable from which the stack trace will be checked
-     * @param activityClass The activity class to launch when the app crashes
-     * @return true if this stack trace is conflictive and the activity must not be launched, false otherwise
-     */
     private static boolean isStackTraceLikelyConflictive(Throwable throwable, Class<? extends Activity> activityClass) {
         do {
             StackTraceElement[] stackTrace = throwable.getStackTrace();
@@ -458,13 +444,6 @@ public final class CustomOnCrashCore {
         return false;
     }
 
-    /**
-     * INTERNAL method that returns the build date of the current APK as a string, or null if unable to determine it.
-     *
-     * @param context    A valid context. Must not be null.
-     * @param dateFormat DateFormat to use to convert from Date to String
-     * @return The formatted date, or "Unknown" if unable to determine it.
-     */
     private static String getBuildDateAsString(Context context, DateFormat dateFormat) {
         String buildDate;
         try {
@@ -480,12 +459,6 @@ public final class CustomOnCrashCore {
         return buildDate;
     }
 
-    /**
-     * INTERNAL method that returns the version name of the current app, or null if unable to determine it.
-     *
-     * @param context A valid context. Must not be null.
-     * @return The version name, or "Unknown if unable to determine it.
-     */
     private static String getVersionName(Context context) {
         try {
             PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
@@ -495,12 +468,6 @@ public final class CustomOnCrashCore {
         }
     }
 
-    /**
-     * INTERNAL method that returns the device model name with correct capitalization.
-     * Taken from: http://stackoverflow.com/a/12707479/1254846
-     *
-     * @return The device model name (i.e., "LGE Nexus 5")
-     */
     private static String getDeviceModelName() {
         String manufacturer = Build.MANUFACTURER;
         String model = Build.MODEL;
@@ -511,12 +478,6 @@ public final class CustomOnCrashCore {
         }
     }
 
-    /**
-     * INTERNAL method that capitalizes the first character of a string
-     *
-     * @param s The string to capitalize
-     * @return The capitalized string
-     */
     private static String capitalize(String s) {
         if (s == null || s.length() == 0) {
             return "";
@@ -529,15 +490,6 @@ public final class CustomOnCrashCore {
         }
     }
 
-    /**
-     * INTERNAL method used to guess which activity must be called from the error activity to restart the app.
-     * It will first get activities from the AndroidManifest with intent filter <action android:name="cat.ereza.customactivityoncrash.RESTART" />,
-     * if it cannot find them, then it will get the default launcher.
-     * If there is no default launcher, this returns null.
-     *
-     * @param context A valid context. Must not be null.
-     * @return The guessed restart activity class, or null if no suitable one is found
-     */
     private static Class<? extends Activity> guessRestartActivityClass(Context context) {
         Class<? extends Activity> resolvedActivityClass;
 
@@ -552,13 +504,6 @@ public final class CustomOnCrashCore {
         return resolvedActivityClass;
     }
 
-    /**
-     * INTERNAL method used to get the first activity with an intent-filter <action android:name="cat.ereza.customactivityoncrash.RESTART" />,
-     * If there is no activity with that intent filter, this returns null.
-     *
-     * @param context A valid context. Must not be null.
-     * @return A valid activity class, or null if no suitable one is found
-     */
     @SuppressWarnings("unchecked")
     private static Class<? extends Activity> getRestartActivityClassWithIntentFilter(Context context) {
         List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(
@@ -578,13 +523,6 @@ public final class CustomOnCrashCore {
         return null;
     }
 
-    /**
-     * INTERNAL method used to get the default launcher activity for the app.
-     * If there is no launchable activity, this returns null.
-     *
-     * @param context A valid context. Must not be null.
-     * @return A valid activity class, or null if no suitable one is found
-     */
     @SuppressWarnings("unchecked")
     private static Class<? extends Activity> getLauncherActivity(Context context) {
         Intent intent = context.getPackageManager().getLaunchIntentForPackage(context.getPackageName());
@@ -600,14 +538,6 @@ public final class CustomOnCrashCore {
         return null;
     }
 
-    /**
-     * INTERNAL method used to guess which error activity must be called when the app crashes.
-     * It will first get activities from the AndroidManifest with intent filter <action android:name="cat.ereza.customactivityoncrash.ERROR" />,
-     * if it cannot find them, then it will use the default error activity.
-     *
-     * @param context A valid context. Must not be null.
-     * @return The guessed error activity class, or the default error activity if not found
-     */
     private static Class<? extends Activity> guessErrorActivityClass(Context context) {
         Class<? extends Activity> resolvedActivityClass;
 
@@ -622,13 +552,6 @@ public final class CustomOnCrashCore {
         return resolvedActivityClass;
     }
 
-    /**
-     * INTERNAL method used to get the first activity with an intent-filter <action android:name="cat.ereza.customactivityoncrash.ERROR" />,
-     * If there is no activity with that intent filter, this returns null.
-     *
-     * @param context A valid context. Must not be null.
-     * @return A valid activity class, or null if no suitable one is found
-     */
     @SuppressWarnings("unchecked")
     private static Class<? extends Activity> getErrorActivityClassWithIntentFilter(Context context) {
         List<ResolveInfo> resolveInfos = context.getPackageManager().queryIntentActivities(
@@ -648,35 +571,50 @@ public final class CustomOnCrashCore {
         return null;
     }
 
-    /**
-     * INTERNAL method that kills the current process.
-     * It is used after restarting or killing the app.
-     */
     private static void killCurrentProcess() {
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(10);
     }
 
+    public boolean isAutoSendMail() {
+        return bAutoSendMail;
+    }
 
-    private Object mEmail = null;
-    private void sendEmail(final String title,final String error,final String filepath) {
-        if (mEmail == null) {
+    public static void setAutoSendMail(boolean bAutoSendMail) {
+        bAutoSendMail = bAutoSendMail;
+    }
+
+    public static void setbWriteFile(boolean writeFile){
+        bWriteFile = writeFile;
+    }
+
+    public static void setMail(Object mail){
+        mEmail = mail;
+    }
+    public static void sendMail(Context context,String error,boolean bSend,Object mail){
+        if (mail != null &&(bAutoSendMail || bSend)) {
+            String packageName = context.getPackageName();
+            sendEmail(packageName, error, null,mail);
+        }
+    }
+    private static void sendEmail(final String title,final String error,final String filepath,final Object mail) {
+        if (mail == null) {
             return;
         }
         new Thread(new Runnable() {
 
             @Override
             public void run() {
-                Class clazz = mEmail.getClass();
+                Class clazz = mail.getClass();
                 try {
                     Method subJect = clazz.getDeclaredMethod(MethondName.setSubject, String.class);
                     Method conTent = clazz.getDeclaredMethod(MethondName.setContent, String.class);
                     Method attachFile = clazz.getDeclaredMethod(MethondName.setAttachFile, String.class);
                     Method sendtextMail = clazz.getDeclaredMethod(MethondName.sendTextMail);
-                    subJect.invoke(mEmail, title);
-                    conTent.invoke(mEmail, error);
-                    attachFile.invoke(mEmail, filepath);
-                    sendtextMail.invoke(mEmail);
+                    subJect.invoke(mail, title);
+                    conTent.invoke(mail, error);
+                    attachFile.invoke(mail, filepath);
+                    sendtextMail.invoke(mail);
                 } catch (NoSuchMethodException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -694,10 +632,25 @@ public final class CustomOnCrashCore {
         }).start();
     }
 
+    /**
+     * The type Methond name.
+     */
     static class MethondName{
+        /**
+         * The constant setSubject.
+         */
         public static String setSubject = "setSubject";
+        /**
+         * The constant setContent.
+         */
         public static String setContent = "setContent";
+        /**
+         * The constant setAttachFile.
+         */
         public static String setAttachFile = "setAttachFile";
+        /**
+         * The constant sendTextMail.
+         */
         public static String sendTextMail = "sendTextMail";
     }
 }

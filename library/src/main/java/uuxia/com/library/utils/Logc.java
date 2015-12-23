@@ -1,5 +1,6 @@
 package uuxia.com.library.utils;
 
+import android.content.Context;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,30 +19,66 @@ import java.util.Formatter;
 import java.util.Locale;
 
 /**
- * Created by uuxia-mac on 15/7/18.
- * <p/>
- * Log工具，类似android.util.Log。 tag自动产生，格式:
- * TAG:className.methodName(Line:lineNumber),
- * customTagPrefix为空时只输出：className.methodName(Line:lineNumber)。
+ * The type Logc.
  */
 public class Logc {
+
+    /**
+     * storage_path存储卡的路径.
+     */
+    public static final String STORAGE_PATH = Environment
+            .getExternalStorageDirectory().getPath();
+
+    /**
+     * The constant LINE_BREAK.
+     */
     public static final String LINE_BREAK = "\r\n";
     private static final ThreadLocal<ReusableFormatter> thread_local_formatter = new ThreadLocal<ReusableFormatter>() {
         protected ReusableFormatter initialValue() {
             return new ReusableFormatter();
         }
     };
+    /**
+     * The constant isAndroid.
+     */
     public static boolean isAndroid = true;
+    /**
+     * The constant ROOT.
+     */
     public static String ROOT;// = Environment.getExternalStorageDirectory().getPath() + "/HeT/"; // SD卡中的根目录
+    /**
+     * The constant TAG.
+     */
     public static String TAG = "uulog"; // 自定义Tag的前缀，可以是作者名
 
+    /**
+     * The constant DEBUG.
+     */
     public static boolean DEBUG = true;
-    // 容许打印日志的类型，默认是true，设置为false则不打印
+    /**
+     * The constant allowD.
+     */
+// 容许打印日志的类型，默认是true，设置为false则不打印
     public static boolean allowD = DEBUG && true;
+    /**
+     * The constant allowE.
+     */
     public static boolean allowE = DEBUG && true;
+    /**
+     * The constant allowI.
+     */
     public static boolean allowI = DEBUG && true;
+    /**
+     * The constant allowV.
+     */
     public static boolean allowV = DEBUG && true;
+    /**
+     * The constant allowW.
+     */
     public static boolean allowW = DEBUG && true;
+    /**
+     * The constant allowWtf.
+     */
     public static boolean allowWtf = DEBUG && true;
     //    private static final boolean isSaveLog = true; // 是否把保存日志到SD卡中
     private static String PATH_LOG_INFO;// = ROOT + "log/";
@@ -56,6 +93,11 @@ public class Logc {
             PATH_LOG_INFO = ROOT + "log/";
             isAndroid = true;
         }
+    }
+
+    public static void Init(Context context){
+        PATH_LOG_INFO = STORAGE_PATH + File.separator
+                + context.getPackageName() + File.separator+"log/"; // 公共日志目录
     }
 
 
@@ -125,6 +167,11 @@ public class Logc {
         }
     }
 
+    /**
+     * V.
+     *
+     * @param content the content
+     */
     public static void v(String content) {
         if (!allowV)
             return;
@@ -134,6 +181,12 @@ public class Logc {
         logv(tag, content);
     }
 
+    /**
+     * V.
+     *
+     * @param content   the content
+     * @param isSaveLog the is save log
+     */
     public static void v(String content, boolean isSaveLog) {
         if (!allowV)
             return;
@@ -146,6 +199,12 @@ public class Logc {
         }
     }
 
+    /**
+     * V.
+     *
+     * @param uTag    the u tag
+     * @param content the content
+     */
     public static void v(String uTag, String content) {
         if (!allowV) {
             return;
@@ -157,6 +216,13 @@ public class Logc {
         logv(tag, content);
     }
 
+    /**
+     * V.
+     *
+     * @param uTag      the u tag
+     * @param content   the content
+     * @param isSaveLog the is save log
+     */
     public static void v(String uTag, String content, boolean isSaveLog) {
         if (!allowV) {
             return;
@@ -172,6 +238,11 @@ public class Logc {
         }
     }
 
+    /**
+     * D.
+     *
+     * @param content the content
+     */
     public static void d(String content) {
         if (!allowD)
             return;
@@ -181,6 +252,12 @@ public class Logc {
         logd(tag, content);
     }
 
+    /**
+     * D.
+     *
+     * @param content   the content
+     * @param isSaveLog the is save log
+     */
     public static void d(String content, boolean isSaveLog) {
         if (!allowD)
             return;
@@ -193,6 +270,12 @@ public class Logc {
         }
     }
 
+    /**
+     * D.
+     *
+     * @param uTag    the u tag
+     * @param content the content
+     */
     public static void d(String uTag, String content) {
         if (!allowD) {
             return;
@@ -204,6 +287,13 @@ public class Logc {
         logd(tag, content);
     }
 
+    /**
+     * D.
+     *
+     * @param uTag      the u tag
+     * @param content   the content
+     * @param isSaveLog the is save log
+     */
     public static void d(String uTag, String content, boolean isSaveLog) {
         if (!allowD) {
             return;
@@ -218,6 +308,11 @@ public class Logc {
         }
     }
 
+    /**
+     * .
+     *
+     * @param content the content
+     */
     public static void i(String content) {
         if (!allowI)
             return;
@@ -227,6 +322,12 @@ public class Logc {
         logi(tag, content);
     }
 
+    /**
+     * .
+     *
+     * @param content   the content
+     * @param isSaveLog the is save log
+     */
     public static void i(String content, boolean isSaveLog) {
         if (!allowI)
             return;
@@ -239,6 +340,12 @@ public class Logc {
         }
     }
 
+    /**
+     * .
+     *
+     * @param uTag    the u tag
+     * @param content the content
+     */
     public static void i(String uTag, String content) {
         if (!allowI) {
             return;
@@ -250,6 +357,13 @@ public class Logc {
         logi(tag, content);
     }
 
+    /**
+     * .
+     *
+     * @param uTag      the u tag
+     * @param content   the content
+     * @param isSaveLog the is save log
+     */
     public static void i(String uTag, String content, boolean isSaveLog) {
         if (!allowI) {
             return;
@@ -264,6 +378,11 @@ public class Logc {
         }
     }
 
+    /**
+     * W.
+     *
+     * @param content the content
+     */
     public static void w(String content) {
         if (!allowW)
             return;
@@ -273,6 +392,12 @@ public class Logc {
         logw(tag, content);
     }
 
+    /**
+     * W.
+     *
+     * @param content   the content
+     * @param isSaveLog the is save log
+     */
     public static void w(String content, boolean isSaveLog) {
         if (!allowW)
             return;
@@ -285,6 +410,12 @@ public class Logc {
         }
     }
 
+    /**
+     * W.
+     *
+     * @param uTag    the u tag
+     * @param content the content
+     */
     public static void w(String uTag, String content) {
         if (!allowW) {
             return;
@@ -296,6 +427,13 @@ public class Logc {
         logw(tag, content);
     }
 
+    /**
+     * W.
+     *
+     * @param uTag      the u tag
+     * @param content   the content
+     * @param isSaveLog the is save log
+     */
     public static void w(String uTag, String content, boolean isSaveLog) {
         if (!allowW) {
             return;
@@ -311,6 +449,11 @@ public class Logc {
         }
     }
 
+    /**
+     * E.
+     *
+     * @param content the content
+     */
     public static void e(String content) {
         if (!allowE)
             return;
@@ -319,6 +462,12 @@ public class Logc {
         loge(tag, content, null);
     }
 
+    /**
+     * E.
+     *
+     * @param content   the content
+     * @param isSaveLog the is save log
+     */
     public static void e(String content, boolean isSaveLog) {
         if (!allowE)
             return;
@@ -331,6 +480,12 @@ public class Logc {
         }
     }
 
+    /**
+     * E.
+     *
+     * @param uTag    the u tag
+     * @param content the content
+     */
     public static void e(String uTag, String content) {
         if (!allowE) {
             return;
@@ -341,6 +496,13 @@ public class Logc {
         loge(tag, content, null);
     }
 
+    /**
+     * E.
+     *
+     * @param uTag      the u tag
+     * @param content   the content
+     * @param isSaveLog the is save log
+     */
     public static void e(String uTag, String content, boolean isSaveLog) {
         if (!allowE) {
             return;
@@ -355,6 +517,12 @@ public class Logc {
         }
     }
 
+    /**
+     * E.
+     *
+     * @param content the content
+     * @param tr      the tr
+     */
     public static void e(String content, Throwable tr) {
         if (!allowE)
             return;
@@ -363,6 +531,13 @@ public class Logc {
         Log.e(tag, content, tr);
     }
 
+    /**
+     * E.
+     *
+     * @param uTag    the u tag
+     * @param content the content
+     * @param tr      the tr
+     */
     public static void e(String uTag, String content, Throwable tr) {
         if (!allowE)
             return;
@@ -372,6 +547,13 @@ public class Logc {
         Log.e(tag, content, tr);
     }
 
+    /**
+     * E.
+     *
+     * @param content   the content
+     * @param tr        the tr
+     * @param isSaveLog the is save log
+     */
     public static void e(String content, Throwable tr, boolean isSaveLog) {
         if (!allowE)
             return;
@@ -383,6 +565,12 @@ public class Logc {
         }
     }
 
+    /**
+     * E.
+     *
+     * @param tr        the tr
+     * @param isSaveLog the is save log
+     */
     public static void e(Throwable tr, boolean isSaveLog) {
         if (!allowE)
             return;
@@ -396,6 +584,11 @@ public class Logc {
         }
     }
 
+    /**
+     * E.
+     *
+     * @param tr the tr
+     */
     public static void e(Throwable tr) {
         if (!allowE)
             return;
@@ -406,6 +599,14 @@ public class Logc {
         loge(tag, content, null);
     }
 
+    /**
+     * E.
+     *
+     * @param uTag      the u tag
+     * @param content   the content
+     * @param tr        the tr
+     * @param isSaveLog the is save log
+     */
     public static void e(String uTag, String content, Throwable tr, boolean isSaveLog) {
         if (!allowE)
             return;
@@ -420,6 +621,11 @@ public class Logc {
         }
     }
 
+    /**
+     * Wtf.
+     *
+     * @param content the content
+     */
     public static void wtf(String content) {
         if (!allowWtf)
             return;
@@ -428,6 +634,12 @@ public class Logc {
         logwtf(tag, content);
     }
 
+    /**
+     * Wtf.
+     *
+     * @param content the content
+     * @param tr      the tr
+     */
     public static void wtf(String content, Throwable tr) {
         if (!allowWtf)
             return;
@@ -436,6 +648,11 @@ public class Logc {
         logwtf(tag, content, tr);
     }
 
+    /**
+     * Wtf.
+     *
+     * @param tr the tr
+     */
     public static void wtf(Throwable tr) {
         if (!allowWtf)
             return;
@@ -448,6 +665,13 @@ public class Logc {
         return Thread.currentThread().getStackTrace()[4];
     }
 
+    /**
+     * Point.
+     *
+     * @param path the path
+     * @param tag  the tag
+     * @param msg  the msg
+     */
     public static void point(String path, String tag, String msg) {
         if (isSDAva()) {
             Date date = new Date();
@@ -484,9 +708,9 @@ public class Logc {
     }
 
     /**
-     * 根据文件路径 递归创建文件
+     * Create dip path.
      *
-     * @param file
+     * @param file the file
      */
     public static void createDipPath(String file) {
         String parentFile = file.substring(0, file.lastIndexOf("/"));
@@ -502,11 +726,23 @@ public class Logc {
         }
     }
 
+    /**
+     * Format string.
+     *
+     * @param msg  the msg
+     * @param args the args
+     * @return the string
+     */
     public static String format(String msg, Object... args) {
         ReusableFormatter formatter = thread_local_formatter.get();
         return formatter.format(msg, args);
     }
 
+    /**
+     * Is sd ava boolean.
+     *
+     * @return the boolean
+     */
     public static boolean isSDAva() {
         if (isAndroid && Environment.getExternalStorageState().equals(
                 Environment.MEDIA_MOUNTED)
@@ -517,6 +753,12 @@ public class Logc {
         }
     }
 
+    /**
+     * Is null boolean.
+     *
+     * @param strSource the str source
+     * @return the boolean
+     */
     public static boolean isNull(final String strSource) {
         return strSource == null || "".equals(strSource.trim());
     }
@@ -546,20 +788,27 @@ public class Logc {
         return sb.toString();
     }
 
-    /**
-     * A little trick to reuse a formatter in the same thread
-     */
     private static class ReusableFormatter {
 
         private Formatter formatter;
 
         private StringBuilder builder;
 
+        /**
+         * Instantiates a new Reusable formatter.
+         */
         public ReusableFormatter() {
             builder = new StringBuilder();
             formatter = new Formatter(builder);
         }
 
+        /**
+         * Format string.
+         *
+         * @param msg  the msg
+         * @param args the args
+         * @return the string
+         */
         public String format(String msg, Object... args) {
             formatter.format(msg, args);
             String s = builder.toString();
