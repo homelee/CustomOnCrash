@@ -14,7 +14,7 @@ buildscript {
 
 allprojects {
     repositories {
-        println NEXUS_PASSWORD
+        //println NEXUS_PASSWORD
         jcenter()
     }
 }
