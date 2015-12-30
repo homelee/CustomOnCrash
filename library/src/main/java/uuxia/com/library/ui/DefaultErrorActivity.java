@@ -39,7 +39,7 @@ import android.widget.Toast;
 
 import uuxia.com.library.CustomOnCrashCore;
 import uuxia.com.library.R;
-import uuxia.com.library.mail.Email;
+import uuxia.com.library.utils.Email;
 
 
 /**
@@ -59,6 +59,9 @@ public final class DefaultErrorActivity extends Activity implements PopupMenu.On
         //Else, use close and just finish the app.
         //It is recommended that you follow this logic if implementing a custom error activity.
         initUuxiaView();
+
+        String errorInformation = CustomOnCrashCore.getAllErrorDetailsFromIntent(DefaultErrorActivity.this, getIntent());
+        CustomOnCrashCore.send(this,errorInformation);
     }
 
     /**
@@ -148,12 +151,20 @@ public final class DefaultErrorActivity extends Activity implements PopupMenu.On
         }
     }
 
+    private String getUserName(String email){
+        if (email != null){
+            String[] tm = email.split("@");
+            return tm[0];
+        }
+        return "sxmobi_1";
+    }
+
     private void popEmail(){
         LayoutInflater inflater = getLayoutInflater();
         View layout = inflater.inflate(R.layout.fillmail, null);
 
-        final EditText from = (EditText) layout.findViewById(R.id.from);
-        final EditText pass = (EditText) layout.findViewById(R.id.pass);
+//        final EditText from = (EditText) layout.findViewById(R.id.from);
+//        final EditText pass = (EditText) layout.findViewById(R.id.pass);
         final EditText to = (EditText) layout.findViewById(R.id.to);
 
         AlertDialog.Builder dlg = new AlertDialog.Builder(this);
@@ -162,8 +173,8 @@ public final class DefaultErrorActivity extends Activity implements PopupMenu.On
         dlg.setPositiveButton("send", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String fromAddr = from.getText().toString();
-                String password = pass.getText().toString();
+                String fromAddr = "sxmobi_1@163.com";//from.getText().toString();
+                String password = "het123457";//pass.getText().toString();
                 String toAddr = to.getText().toString();
                 if (TextUtils.isEmpty(fromAddr) || TextUtils.isEmpty(password) || TextUtils.isEmpty(toAddr)) {
                     Toast.makeText(DefaultErrorActivity.this, "please input information", Toast.LENGTH_SHORT).show();

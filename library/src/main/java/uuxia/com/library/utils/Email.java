@@ -1,4 +1,4 @@
-package uuxia.com.library.mail;
+package uuxia.com.library.utils;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -7,10 +7,12 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.mail.Address;
+import javax.mail.Authenticator;
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -18,130 +20,110 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-/**
- * The type Email.
- */
 public class Email {
-	//sender server info
+	// 发送邮件的服务器的IP和端口
 	private String mailServerHost;
 	private String mailServerPort = "25";
 
-	// sender addr
+	// 邮件发送者的地址
 	private String fromAddress;
-	// receiver addr
+	// 邮件接收者的地址
 	private String toAddress;
-	// login info
+	// 登陆邮件发送服务器的用户名和密码
 	private String userName;
 	private String password;
-	// ident calidate
+	// 是否需要身份验证
 	private boolean validate = true;
-	// subject
+	// 邮件主题
 	private String subject;
-	// email content
+	// 邮件的文本内容
 	private String content;
-	// mail attachfile
+	// 邮件附件的文件名
 	private String attachFile;
 
-	/**
-	 * Instantiates a new Email.
-	 *
-	 * @param mailServerHost the mail server host
-	 * @param toAddress      the to address
-	 * @param validate       the validate
-	 */
 	public Email(String mailServerHost, String toAddress,
 				 boolean validate) {
 		this(mailServerHost, "admin@amdin.eysin", toAddress, validate);
 	}
 
-	/**
-	 * Instantiates a new Email.
-	 *
-	 * @param mailServerHost the mail server host
-	 * @param fromAddress    the from address
-	 * @param toAddress      the to address
-	 * @param validate       the validate
-	 */
 	public Email(String mailServerHost, String fromAddress,
 				 String toAddress, boolean validate) {
 		this(mailServerHost, fromAddress, toAddress, null, null);
 		this.validate = validate;
 	}
 
-	/**
-	 * Instantiates a new Email.
-	 *
-	 * @param mailServerHost the mail server host
-	 * @param fromAddress    the from address
-	 * @param toAddress      the to address
-	 * @param userName       the user name
-	 * @param password       the password
-	 */
 	public Email(String mailServerHost, String fromAddress,
 				 String toAddress, String userName, String password) {
 		super();
 		if (mailServerHost == null) {
-			mailServerHost = getDomain(toAddress);
+			mailServerHost = getDomain(fromAddress);
 		}
 		this.mailServerHost = mailServerHost;
 		this.fromAddress = fromAddress;
 		this.toAddress = toAddress;
 		this.userName = userName;
 		this.password = password;
+		Logc.w("Host="+mailServerHost + " from:"+fromAddress+" to:"+toAddress + " user:"+ userName + " pass:"+password);
+//		this.mailServerHost = "smtp.163.com";//mailServerHost;
+//		this.fromAddress = fromAddress;
+//		this.toAddress = toAddress;
+//		this.userName = "xiaxiaoli_2005";//userName;
+//		this.password = "2475431305";//password;
 	}
 
 	/**
-	 * Create email.
+	 * 实名发送邮件，需要用户名密码
 	 *
-	 * @param smtp     the smtp
-	 * @param to       the to
-	 * @param from     the from
-	 * @param password the password
-	 * @return the email
+	 * @param smtp
+	 *            服务器地址
+	 * @param to
+	 *            收件人
+	 * @param from
+	 *            发件人
+	 * @param password
+	 *            发件人邮箱密码
 	 */
 	public static Email create(String smtp, String to, String from,
 							   String password) {
-		return new Email(smtp, from, to, from, password);
+		return new Email(smtp, from, to, getUserName(from), password);
 	}
 
-	/**
-	 * Create email.
-	 *
-	 * @param to       the to
-	 * @param from     the from
-	 * @param password the password
-	 * @return the email
-	 */
-	public static Email create( String to, String from,
+	public static Email create(String to, String from,
 							   String password) {
-		return new Email(null, from, to, from, password);
+		return create(null, to, from, password);
+	}
+
+	private static String getUserName(String email){
+		if (email != null){
+			String[] tm = email.split("@");
+			return tm[0];
+		}
+		return "sxmobi_1";
 	}
 
 	/**
-	 * Create email.
+	 * 匿名邮件发送，需要获取邮箱domain地址；例如：qq.com->mx1.qq.com.
 	 *
-	 * @param to     the to
-	 * @param domain the domain
-	 * @return the email
+	 * @param to
+	 * @param domain
+	 * @return
 	 */
 	public static Email create(String to, String domain) {
 		return new Email(domain, to, false);
 	}
 
 	/**
-	 * Create email.
+	 * 匿名邮件发送，只需要填写接收人
 	 *
-	 * @param to the to
-	 * @return the email
+	 * @param to
+	 * @return
 	 */
 	public static Email create(String to) {
 		return new Email(null, to, false);
 	}
 
 	/**
-	 * Gets properties.
-	 *
-	 * @return the properties
+	 * 获得邮件会话属性
 	 */
 	public Properties getProperties() {
 		Properties p = new Properties();
@@ -151,182 +133,82 @@ public class Email {
 		return p;
 	}
 
-	/**
-	 * Gets mail server host.
-	 *
-	 * @return the mail server host
-	 */
 	public String getMailServerHost() {
 		return mailServerHost;
 	}
 
-	/**
-	 * Sets mail server host.
-	 *
-	 * @param mailServerHost the mail server host
-	 */
 	public void setMailServerHost(String mailServerHost) {
 		this.mailServerHost = mailServerHost;
 	}
 
-	/**
-	 * Gets mail server port.
-	 *
-	 * @return the mail server port
-	 */
 	public String getMailServerPort() {
 		return mailServerPort;
 	}
 
-	/**
-	 * Sets mail server port.
-	 *
-	 * @param mailServerPort the mail server port
-	 */
 	public void setMailServerPort(String mailServerPort) {
 		this.mailServerPort = mailServerPort;
 	}
 
-	/**
-	 * Is validate boolean.
-	 *
-	 * @return the boolean
-	 */
 	public boolean isValidate() {
 		return validate;
 	}
 
-	/**
-	 * Sets validate.
-	 *
-	 * @param validate the validate
-	 */
 	public void setValidate(boolean validate) {
 		this.validate = validate;
 	}
 
-	/**
-	 * Gets attach file.
-	 *
-	 * @return the attach file
-	 */
 	public String getAttachFile() {
 		return attachFile;
 	}
 
-	/**
-	 * Sets attach file.
-	 *
-	 * @param fileNames the file names
-	 */
 	public void setAttachFile(String fileNames) {
 		this.attachFile = fileNames;
 	}
 
-	/**
-	 * Gets from address.
-	 *
-	 * @return the from address
-	 */
 	public String getFromAddress() {
 		return fromAddress;
 	}
 
-	/**
-	 * Sets from address.
-	 *
-	 * @param fromAddress the from address
-	 */
 	public void setFromAddress(String fromAddress) {
 		this.fromAddress = fromAddress;
 	}
 
-	/**
-	 * Gets password.
-	 *
-	 * @return the password
-	 */
 	public String getPassword() {
 		return password;
 	}
 
-	/**
-	 * Sets password.
-	 *
-	 * @param password the password
-	 */
 	public void setPassword(String password) {
 		this.password = password;
 	}
 
-	/**
-	 * Gets to address.
-	 *
-	 * @return the to address
-	 */
 	public String getToAddress() {
 		return toAddress;
 	}
 
-	/**
-	 * Sets to address.
-	 *
-	 * @param toAddress the to address
-	 */
 	public void setToAddress(String toAddress) {
 		this.toAddress = toAddress;
 	}
 
-	/**
-	 * Gets user name.
-	 *
-	 * @return the user name
-	 */
 	public String getUserName() {
 		return userName;
 	}
 
-	/**
-	 * Sets user name.
-	 *
-	 * @param userName the user name
-	 */
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
 
-	/**
-	 * Gets subject.
-	 *
-	 * @return the subject
-	 */
 	public String getSubject() {
 		return subject;
 	}
 
-	/**
-	 * Sets subject.
-	 *
-	 * @param subject the subject
-	 */
 	public void setSubject(String subject) {
 		this.subject = subject;
 	}
 
-	/**
-	 * Gets content.
-	 *
-	 * @return the content
-	 */
 	public String getContent() {
 		return content;
 	}
 
-	/**
-	 * Sets content.
-	 *
-	 * @param textContent the text content
-	 */
 	public void setContent(String textContent) {
 		this.content = textContent;
 	}
@@ -338,88 +220,130 @@ public class Email {
 	}
 
 	/**
-	 * Send text mail boolean.
+	 * 以文本格式发送邮件
 	 *
-	 * @return the boolean
+	 *            待发送的邮件的信息
 	 */
 	public boolean sendTextMail() {
+		Logc.e("send sendTextMail.......");
 		Email o = this;
+		// 判断是否需要身份认证
 		PopupAuthenticator authenticator = null;
 		Properties pro = getProperties();
 		if (isValidate()) {
+			// 如果需要身份认证，则创建一个密码验证器
 			authenticator = new PopupAuthenticator(getUserName(),
 					getPassword());
 		}
+		// 根据邮件会话属性和密码验证器构造一个发送邮件的session
 		Session sendMailSession = Session
 				.getDefaultInstance(pro, authenticator);
 		try {
+
+			Logc.e("send sendTextMail.......1");
+			// 根据session创建一个邮件消息
 			Message mailMessage = new MimeMessage(sendMailSession);
-			Address from = new InternetAddress(getFromAddress(),
-					"Eysin");
+			// 创建邮件发送者地址
+			Address from = new InternetAddress(getFromAddress());
+			// 设置邮件消息的发送者
 			mailMessage.setFrom(from);
-			Address to = new InternetAddress(getToAddress(), "Eysin");
+			// 创建邮件的接收者地址，并设置到邮件消息中
+			Address to = new InternetAddress(getToAddress());
 			mailMessage.setRecipient(Message.RecipientType.TO, to);
+			// 设置邮件消息的主题
 			mailMessage.setSubject(getSubject());
+			// 设置邮件消息发送的时间
 			mailMessage.setSentDate(new Date());
+			// 设置邮件消息的主要内容
 			String mailContent = getContent();
 			// mailMessage.setText(mailContent);
 			mailMessage.setContent(mailContent, "text/plain");
+			// 设置附件
 			String attachPath = getAttachFile();
 			if (attachPath != null && !attachPath.equals("")) {
 				mailMessage.setFileName(attachPath);
 			}
+
+			Logc.e("send sendTextMail.......2"+getUserName() + " pass="+getPassword() +" "+getFromAddress());
+			// 发送邮件
 			Transport.send(mailMessage);
+			Logc.e("send sucessfullll......."+getPassword());
 			return true;
 		} catch (MessagingException ex) {
-			ex.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logc.e("========" + ex.getMessage());
+//			ex.printStackTrace();
+
 		}
 		return false;
 	}
 
 	/**
-	 * Send html mail boolean.
+	 * 以HTML格式发送邮件
 	 *
-	 * @return the boolean
+	 *            待发送的邮件信息
 	 */
 	public boolean sendHtmlMail() {
+		// 判断是否需要身份认证
 		PopupAuthenticator authenticator = null;
 		Properties pro = getProperties();
+		// 如果需要身份认证，则创建一个密码验证器
 		if (isValidate()) {
 			authenticator = new PopupAuthenticator(getUserName(),
 					getPassword());
 		}
+		// 根据邮件会话属性和密码验证器构造一个发送邮件的session
 		Session sendMailSession = Session
 				.getDefaultInstance(pro, authenticator);
 		try {
+			// 根据session创建一个邮件消息
 			Message mailMessage = new MimeMessage(sendMailSession);
-			Address from = new InternetAddress(getFromAddress(),
-					"Eysin");
+			// 创建邮件发送者地址
+			Address from = new InternetAddress(getFromAddress());
+			// 设置邮件消息的发送者
 			mailMessage.setFrom(from);
-			Address to = new InternetAddress(getToAddress(), "Eysin");
+			// 创建邮件的接收者地址，并设置到邮件消息中
+			Address to = new InternetAddress(getToAddress());
+			// Message.RecipientType.TO属性表示接收者的类型为TO
 			mailMessage.setRecipient(Message.RecipientType.TO, to);
+			// 设置邮件消息的主题
 			mailMessage.setSubject(getSubject());
+			// 设置邮件消息发送的时间
 			mailMessage.setSentDate(new Date());
+			// MiniMultipart类是一个容器类，包含MimeBodyPart类型的对象
 			Multipart mainPart = new MimeMultipart();
+			// 创建一个包含HTML内容的MimeBodyPart
 			BodyPart html = new MimeBodyPart();
+			// 设置HTML内容
 			html.setContent(getContent(), "text/html; charset=utf-8");
 			mainPart.addBodyPart(html);
+			// 将MiniMultipart对象设置为邮件内容
 			mailMessage.setContent(mainPart, "text/plain");
+			// 设置附件
 			String attachPath = getAttachFile();
 			if (attachPath != null && !attachPath.equals("")) {
 				mailMessage.setFileName(attachPath);
 			}
+			// 发送邮件
 			Transport.send(mailMessage);
 			return true;
 		} catch (MessagingException ex) {
 			ex.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		return false;
+	}
+
+	static class PopupAuthenticator extends Authenticator {
+		private String userName;
+		private String pwd;
+
+		public PopupAuthenticator(String paramString1, String paramString2) {
+			this.userName = paramString1;
+			this.pwd = paramString2;
+		}
+
+		public PasswordAuthentication getPasswordAuthentication() {
+			return new PasswordAuthentication(this.userName, this.pwd);
+		}
 	}
 
 
@@ -428,8 +352,9 @@ public class Email {
 		addr.put("foxmail.com", "mx1.qq.com.");
 		addr.put("vip.qq.com", "mx3.qq.com.");
 		addr.put("qq.com", "mx1.qq.com.");
-		addr.put("163.com", "163mx00.mxmail.netease.com.");
+		addr.put("163.com", "smtp.163.com");
 		addr.put("126.com", "126mx02.mxmail.netease.com.");
+//		addr.put("163.com", "163mx00.mxmail.netease.com.");
 		addr.put("yeah.net", "yeahmx00.mxmail.netease.com.");
 		addr.put("vip.163.com", "vip163mx01.mxmail.netease.com.");
 		addr.put("sina.com", "freemx1.sinamail.sina.com.cn.");

@@ -134,7 +134,7 @@ public final class CustomOnCrashCore {
                                     if (bWriteFile) {
                                         Logc.i(stackTraceString, true);
                                     }
-                                    sendMail(context,stackTraceString,false,mEmail);
+                                    sendErrorEmail(context, stackTraceString);
 
                                     intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
                                     intent.putExtra(EXTRA_RESTART_ACTIVITY_CLASS, restartActivityClass);
@@ -212,6 +212,10 @@ public final class CustomOnCrashCore {
         } catch (Throwable t) {
             Log.e(TAG, "An unknown error occurred while installing CustomOnCrashCore, it may not have been properly initialized. Please report this as a bug if needed.", t);
         }
+    }
+
+    public static void sendErrorEmail(Context context, String error){
+        sendMail(context,error,false,mEmail);
     }
 
     /**
@@ -580,8 +584,8 @@ public final class CustomOnCrashCore {
         return bAutoSendMail;
     }
 
-    public static void setAutoSendMail(boolean bAutoSendMail) {
-        bAutoSendMail = bAutoSendMail;
+    public static void setAutoSendMail(boolean b) {
+        bAutoSendMail = b;
     }
 
     public static void setbWriteFile(boolean writeFile){
@@ -591,6 +595,11 @@ public final class CustomOnCrashCore {
     public static void setMail(Object mail){
         mEmail = mail;
     }
+
+    public static void send(Context context,String error){
+        sendMail(context,error,true,mEmail);
+    }
+
     public static void sendMail(Context context,String error,boolean bSend,Object mail){
         if (mail != null &&(bAutoSendMail || bSend)) {
             String packageName = context.getPackageName();

@@ -20,7 +20,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    //compile fileTree(include: ['*.jar'], dir: 'libs')
     compile project(':library')
-//    compile 'com.github.xxl6097:customoncrash:1.0.0'
+//    compile 'com.android.support:support-v4:23.1.1'
 }
