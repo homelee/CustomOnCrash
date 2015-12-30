@@ -7,8 +7,12 @@ android {
     defaultConfig {
         minSdkVersion 4
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        if (project.hasProperty('VERSION_CODE')) {
+            versionCode Integer.parseInt(VERSION_CODE)
+        }
+        if (project.hasProperty('VERSION_NAME')) {
+            versionName VERSION_NAME
+        }
     }
     buildTypes {
         release {
@@ -21,6 +25,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
 }
+
 
 //apply from: 'https://raw.githubusercontent.com/xxl6097/gradle-mvn-push/master/gradle-mvn-push.gradle'
 apply from: '../github.gradle'
