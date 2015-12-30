@@ -39,7 +39,6 @@ import android.widget.Toast;
 
 import uuxia.com.library.CustomOnCrashCore;
 import uuxia.com.library.R;
-import uuxia.com.library.mail.Email;
 
 
 /**
@@ -80,9 +79,6 @@ public final class DefaultErrorActivity extends Activity implements PopupMenu.On
         int id = item.getItemId();
         if (id == R.id.copy) {
             copyErrorToClipboard();
-            return true;
-        } else if (id == R.id.email){
-            popEmail();
             return true;
         }else if (id == R.id.restart){
             final Class<? extends Activity> restartActivityClass = CustomOnCrashCore.getRestartActivityClassFromIntent(getIntent());
@@ -149,30 +145,12 @@ public final class DefaultErrorActivity extends Activity implements PopupMenu.On
     }
 
     private void popEmail(){
-        LayoutInflater inflater = getLayoutInflater();
-        View layout = inflater.inflate(R.layout.fillmail, null);
-
-        final EditText from = (EditText) layout.findViewById(R.id.from);
-        final EditText pass = (EditText) layout.findViewById(R.id.pass);
-        final EditText to = (EditText) layout.findViewById(R.id.to);
-
         AlertDialog.Builder dlg = new AlertDialog.Builder(this);
         dlg.setTitle("please input information");
-        dlg.setView(layout);
         dlg.setPositiveButton("send", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String fromAddr = from.getText().toString();
-                String password = pass.getText().toString();
-                String toAddr = to.getText().toString();
-                if (TextUtils.isEmpty(fromAddr) || TextUtils.isEmpty(password) || TextUtils.isEmpty(toAddr)) {
-                    Toast.makeText(DefaultErrorActivity.this, "please input information", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Email mail = Email.create(toAddr, fromAddr, password);
 
-                String errorInformation = CustomOnCrashCore.getAllErrorDetailsFromIntent(DefaultErrorActivity.this, getIntent());
-                CustomOnCrashCore.sendMail(DefaultErrorActivity.this,errorInformation,true,mail);
             }
         });
         dlg.setNegativeButton("cancel", new DialogInterface.OnClickListener() {

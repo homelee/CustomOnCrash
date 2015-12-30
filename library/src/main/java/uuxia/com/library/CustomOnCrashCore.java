@@ -11,6 +11,7 @@ import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -132,7 +133,11 @@ public final class CustomOnCrashCore {
                                     }
 
                                     if (bWriteFile) {
-                                        Logc.i(stackTraceString, true);
+                                        String path = Logc.i(stackTraceString, true);
+//                                        if (context != null && path != null) {
+//                                            Logc.w("11111111111111111111111111111"+path);
+//                                            Toast.makeText(context,path,Toast.LENGTH_SHORT).show();
+//                                        }
                                     }
                                     sendMail(context,stackTraceString,false,mEmail);
 

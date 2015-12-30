@@ -3,7 +3,6 @@ package uuxia.com.sample;
 import android.app.Application;
 
 import uuxia.com.library.CustomOnCrashCore;
-import uuxia.com.library.mail.Email;
 
 /**
  * Created by Android Studio.
@@ -57,9 +56,6 @@ public class CrashApplication extends Application {
 //        CustomOnCrashCore.setErrorActivityClass(CustomErrorActivity.class);
 
         //This enables CustomOnCrashCore
-        Email mail = Email.create("263996097@qq.com", "xxl84213344..", "263996097@qq.com");
-        CustomOnCrashCore.setAutoSendMail(true);
-        CustomOnCrashCore.setMail(mail);
         CustomOnCrashCore.install(this);
     }
 }

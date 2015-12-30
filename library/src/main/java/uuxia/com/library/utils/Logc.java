@@ -328,16 +328,17 @@ public class Logc {
      * @param content   the content
      * @param isSaveLog the is save log
      */
-    public static void i(String content, boolean isSaveLog) {
+    public static String i(String content, boolean isSaveLog) {
         if (!allowI)
-            return;
+            return null;
         StackTraceElement caller = getCallerStackTraceElement();
         String tag = generateTag(caller);
 
         logi(tag, content);
         if (isSaveLog && isAndroid) {
-            point(PATH_LOG_INFO, tag, content);
+            return point(PATH_LOG_INFO, tag, content);
         }
+        return null;
     }
 
     /**
@@ -672,7 +673,7 @@ public class Logc {
      * @param tag  the tag
      * @param msg  the msg
      */
-    public static void point(String path, String tag, String msg) {
+    public static String point(String path, String tag, String msg) {
         if (isSDAva()) {
             Date date = new Date();
             SimpleDateFormat dateFormat = new SimpleDateFormat("",
@@ -704,7 +705,9 @@ public class Logc {
                     e.printStackTrace();
                 }
             }
+            return file.getAbsolutePath();
         }
+        return null;
     }
 
     /**
