@@ -174,8 +174,8 @@ public final class DefaultErrorActivity extends Activity implements PopupMenu.On
         dlg.setPositiveButton("send", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String fromAddr = "sxmobi_1@163.com";//from.getText().toString();
-                String password = "het123457";//pass.getText().toString();
+                String fromAddr = "customoncrash@163.com";//from.getText().toString();
+                String password = "xmrehtsjaxouzdbi";//客户端授权密码
                 String toAddr = to.getText().toString();
                 if (TextUtils.isEmpty(fromAddr) || TextUtils.isEmpty(password) || TextUtils.isEmpty(toAddr)) {
                     Toast.makeText(DefaultErrorActivity.this, "please input information", Toast.LENGTH_SHORT).show();

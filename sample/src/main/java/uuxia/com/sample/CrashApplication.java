@@ -58,7 +58,7 @@ public class CrashApplication extends Application {
 
         //This enables CustomOnCrashCore
 //        CrashHandler crashHandler = CrashHandler.getInstance();
-        Email mail = Email.create("263996097@qq.com", "sxmobi_1@163.com", "het123457");
+        Email mail = Email.create("263996097@qq.com", "customoncrash@163.com", "xmrehtsjaxouzdbi");
 //        crashHandler.setEmail(mail);
         CustomOnCrashCore.setAutoSendMail(true);
         CustomOnCrashCore.setMail(mail);
