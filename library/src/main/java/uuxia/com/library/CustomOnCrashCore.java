@@ -616,11 +616,14 @@ public final class CustomOnCrashCore {
             public void run() {
                 Class clazz = mail.getClass();
                 try {
+                    Date currentDate = new Date();
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+                    String subjectString = "Program Crashed："+title+" "+dateFormat.format(currentDate);
                     Method subJect = clazz.getDeclaredMethod(MethondName.setSubject, String.class);
                     Method conTent = clazz.getDeclaredMethod(MethondName.setContent, String.class);
                     Method attachFile = clazz.getDeclaredMethod(MethondName.setAttachFile, String.class);
                     Method sendtextMail = clazz.getDeclaredMethod(MethondName.sendTextMail);
-                    subJect.invoke(mail, title);
+                    subJect.invoke(mail, subjectString);
                     conTent.invoke(mail, error);
                     attachFile.invoke(mail, filepath);
                     sendtextMail.invoke(mail);
