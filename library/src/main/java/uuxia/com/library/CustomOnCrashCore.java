@@ -134,7 +134,7 @@ public final class CustomOnCrashCore {
                                     if (bWriteFile) {
                                         Logc.i(stackTraceString, true);
                                     }
-                                    sendErrorEmail(context, stackTraceString);
+//                                    sendErrorEmail(context, stackTraceString);
 
                                     intent.putExtra(EXTRA_STACK_TRACE, stackTraceString);
                                     intent.putExtra(EXTRA_RESTART_ACTIVITY_CLASS, restartActivityClass);
@@ -575,7 +575,7 @@ public final class CustomOnCrashCore {
         return null;
     }
 
-    private static void killCurrentProcess() {
+    public static void killCurrentProcess() {
         android.os.Process.killProcess(android.os.Process.myPid());
         System.exit(10);
     }

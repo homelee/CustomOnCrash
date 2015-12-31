@@ -1,6 +1,5 @@
 package uuxia.com.library.utils;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +39,8 @@ public class Email {
 	private String content;
 	// 邮件附件的文件名
 	private String attachFile;
+
+	private static OnEmailEvents callback;
 
 	public Email(String mailServerHost, String toAddress,
 				 boolean validate) {
@@ -264,15 +265,20 @@ public class Email {
 				mailMessage.setFileName(attachPath);
 			}
 
-			Logc.e("send sendTextMail.......2"+getUserName() + " pass="+getPassword() +" "+getFromAddress());
+			Logc.e("send sendTextMail.......2" + getUserName() + " pass=" + getPassword() + " " + getFromAddress());
 			// 发送邮件
 			Transport.send(mailMessage);
-			Logc.e("send sucessfullll......."+getPassword());
+			Logc.e("send sucessfullll......." + getPassword());
+			if (callback != null){
+				callback.sendSucessfull(callback.getTaskIsClassName());
+			}
 			return true;
 		} catch (MessagingException ex) {
 			Logc.e("========" + ex.getMessage());
 //			ex.printStackTrace();
-
+			if (callback != null){
+				callback.sendFaid(callback.getTaskIsClassName());
+			}
 		}
 		return false;
 	}
@@ -369,5 +375,9 @@ public class Email {
 		addr.put("live.com", "mx3.hotmail.com.");
 		addr.put("wo.com.cn", "womx.wo.com.cn.");
 		addr.put("139.com", "mx1.mail.139.com.");
+	}
+
+	public static void setCallback(OnEmailEvents call){
+		callback = call;
 	}
 }

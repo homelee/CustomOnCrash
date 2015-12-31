@@ -40,6 +40,7 @@ import android.widget.Toast;
 import uuxia.com.library.CustomOnCrashCore;
 import uuxia.com.library.R;
 import uuxia.com.library.utils.Email;
+import uuxia.com.library.utils.OnEmailEvents;
 
 
 /**
@@ -168,7 +169,7 @@ public final class DefaultErrorActivity extends Activity implements PopupMenu.On
         final EditText to = (EditText) layout.findViewById(R.id.to);
 
         AlertDialog.Builder dlg = new AlertDialog.Builder(this);
-        dlg.setTitle("please input information");
+        dlg.setTitle("please input a email");
         dlg.setView(layout);
         dlg.setPositiveButton("send", new DialogInterface.OnClickListener() {
             @Override
@@ -183,7 +184,20 @@ public final class DefaultErrorActivity extends Activity implements PopupMenu.On
                 Email mail = Email.create(toAddr, fromAddr, password);
 
                 String errorInformation = CustomOnCrashCore.getAllErrorDetailsFromIntent(DefaultErrorActivity.this, getIntent());
-                CustomOnCrashCore.sendMail(DefaultErrorActivity.this,errorInformation,true,mail);
+                final String taskIsName = this.getClass().getName();
+                OnEmailEvents callback = new OnEmailEvents(taskIsName) {
+                    @Override
+                    public void sendSucessfull(String taskIsClassName) {
+                        if (taskIsName.equalsIgnoreCase(taskIsClassName)) {
+                            CustomOnCrashCore.closeApplication(DefaultErrorActivity.this);
+                        }
+                    }
+                    @Override
+                    public void sendFaid(String taskIsClassName) {
+                    }
+                };
+                Email.setCallback(callback);
+                CustomOnCrashCore.sendMail(DefaultErrorActivity.this, errorInformation, true, mail);
             }
         });
         dlg.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
