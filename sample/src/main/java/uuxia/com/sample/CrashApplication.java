@@ -3,6 +3,7 @@ package uuxia.com.sample;
 import android.app.Application;
 
 import uuxia.com.library.CustomOnCrashCore;
+import uuxia.com.library.OnCrashCallBack;
 import uuxia.com.library.utils.Email;
 
 /**
@@ -62,6 +63,12 @@ public class CrashApplication extends Application {
 //        crashHandler.setEmail(mail);
         CustomOnCrashCore.setAutoSendMail(true);
         CustomOnCrashCore.setMail(mail);
+        CustomOnCrashCore.onCrashCallBack = new OnCrashCallBack() {
+            @Override
+            public void onCrashErrorMessage(Object massage) {
+
+            }
+        };
         CustomOnCrashCore.install(this);
 //        CustomOnCrashCore.sendMail(getApplicationContext(), "this is yyuxia", true, mail);
     }

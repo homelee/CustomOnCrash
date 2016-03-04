@@ -66,6 +66,9 @@ public final class CustomOnCrashCore {
     private static boolean bAutoSendMail = false;
     private static boolean bWriteFile = true;
 
+    public static OnCrashCallBack onCrashCallBack;
+
+
     /**
      * Install.
      *
@@ -112,6 +115,9 @@ public final class CustomOnCrashCore {
                                     PrintWriter pw = new PrintWriter(sw);
                                     throwable.printStackTrace(pw);
                                     String stackTraceString = sw.toString();
+                                    if (onCrashCallBack != null){
+                                        onCrashCallBack.onCrashErrorMessage(stackTraceString);
+                                    }
 
                                     //Reduce data to 128KB so we don't get a TransactionTooLargeException when sending the intent.
                                     //The limit is 1MB on Android but some devices seem to have it lower.
